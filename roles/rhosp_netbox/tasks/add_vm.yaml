@@ -1,0 +1,20 @@
+---
+- name: Extract name value
+  debug:
+    msg: "{{ json_data | json_query('*.servers[*].name') }}"
+
+- name: Create virtual machine within NetBox
+  netbox.netbox.netbox_virtual_machine:
+    netbox_url:
+    netbox_token: # replace w/service account token. Needs change.
+    data:
+      cluster:
+      # disk:
+      # memory:
+      name: "{{ item }}"
+      # primary_ip4:
+      # tenant:
+      # vcpus:
+    state: present
+    validate_certs: false
+  loop: "{{ json_data.content | from_json | json_query('servers[*].name') }}"
