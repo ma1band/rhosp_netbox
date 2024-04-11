@@ -1,0 +1,36 @@
+---
+- name: "Verify token via Identity service API"
+  ansible.builtin.uri:
+    url: "{{ keystone_public_url }}/auth/tokens"
+    method: GET
+    status_code:
+      - 200
+      - 204
+    headers:
+      X-Auth-Token: "{{ token }}"
+      X-Subject-Token: "{{ token }}"
+
+- name: "List servers using Compute service API"
+  ansible.builtin.uri:
+    url: "{{ horizon_url }}:13774/v2.1/servers"
+    method: GET
+    headers:
+      X-Auth-Token: "{{ token }}"
+      X-Subject-Token: "{{ token }}"
+    return_content: true
+  register: json_data
+
+- name: Extract name value
+  debug:
+    # msg: "{{ json_data | json_query('*.servers[*].name') }}"
+    msg: "{{ json_data.content | from_json | json_query('servers[*].name') }}"
+
+# - name: List all servers in {{ rhosp_admin_project_name }} project
+#   openstack.cloud.server_info:
+#     auth:
+#       username: "{{ rhosp_admin_user }}"
+#       password: "{{ rhosp_admin_pwd }}"
+#       auth_url: "{{ keystone_public_url }}"
+#       user_domain_name: "{{ rhosp_admin_user_domain }}"
+#       project_domain_name: "{{ rhosp_admin_project_domain }}"
+#       project_name: "{{ rhosp_admin_project_name }}"
