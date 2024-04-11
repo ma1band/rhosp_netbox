@@ -1,0 +1,35 @@
+---
+- name: Netbox
+  connection: local
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    horizon_url:
+    rhosp_admin_user_domain:
+    rhosp_admin_project_domain:
+    rhosp_admin_project_name:
+    keystone_public_url: "{{ horizon_url }}:13000/v3"
+    rhosp_admin_user:
+    rhosp_admin_pwd:
+
+  pre_tasks:
+    - name: "Authenticate to RHOSP and register token"
+      os_auth:
+        auth:
+          username: "{{ rhosp_admin_user }}"
+          password: "{{ rhosp_admin_pwd }}"
+          auth_url: "{{ keystone_public_url }}"
+          user_domain_name: "{{ rhosp_admin_user_domain }}"
+          project_domain_name: "{{ rhosp_admin_project_domain }}"
+          project_name: "{{ rhosp_admin_project_name }}"
+      register: token_request
+
+    - name: "Set Token Fact"
+      set_fact:
+        token: "{{ token_request['ansible_facts']['auth_token'] }}"
+
+  roles:
+    - role: netbox
+  #     # tags: [netbox]
+  #     # when: netbox
