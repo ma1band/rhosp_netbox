@@ -1,0 +1,6 @@
+---
+- name: Include vm_info Tasks
+  include_tasks: vm_info.yaml
+
+- name: Include add_vm Tasks
+  include_tasks: add_vm.yaml
